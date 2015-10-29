@@ -1,43 +1,68 @@
 package com.renegens.tester;
 
+import android.graphics.Bitmap;
+import android.graphics.Color;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
-import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.android.volley.Request;
 import com.android.volley.Response;
 import com.android.volley.VolleyError;
+import com.android.volley.toolbox.ImageRequest;
 
 import org.json.JSONObject;
 
 public class MainActivity extends AppCompatActivity {
 
-    TextView mTxtDegress, mTxtWeather, mTxtError;
-    MarsWeather helper = MarsWeather.getInstance();
     final static String RECENT_API_ENDPOINT = "http://marsweather.ingenology.com/v1/latest/";
-
+    TextView mTxtDegress, mTxtWeather, mTxtError;
+    ImageView mImageView;
+    MarsWeather helper = MarsWeather.getInstance();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
-        setSupportActionBar(toolbar);
+
 
         mTxtDegress = (TextView) findViewById(R.id.degrees);
         mTxtWeather = (TextView) findViewById(R.id.weather);
         mTxtError = (TextView) findViewById(R.id.error);
 
         loadWeatherData();
+        loadImage();
 
 
 
 
 }
+
+    private void loadImage(){
+        String url = "http://i.imgur.com/Nwk25LA.jpg";
+        mImageView = (ImageView) findViewById(R.id.main_bg);
+
+        ImageRequest request = new ImageRequest(url,
+                new Response.Listener<Bitmap>() {
+                    @Override
+                    public void onResponse(Bitmap response) {
+                        mImageView.setImageBitmap(response);
+                    }
+                }, 0, 0, ImageView.ScaleType.FIT_XY, Bitmap.Config.ARGB_8888, new Response.ErrorListener() {
+            @Override
+            public void onErrorResponse(VolleyError error) {
+                mImageView.setBackgroundColor(Color.parseColor("#ff0000"));
+                error.printStackTrace();
+            }
+        });
+
+
+        helper.add(request);
+    }
 
     private void loadWeatherData() {
 
@@ -75,6 +100,8 @@ public class MainActivity extends AppCompatActivity {
         request.setPriority(Request.Priority.HIGH);
         helper.add(request);
     }
+
+
 
     private void txtError(Exception e) {
         mTxtError.setVisibility(View.VISIBLE);
